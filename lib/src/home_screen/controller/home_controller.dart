@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:news_app/src/home_screen/model/news_model.dart';
 import 'package:news_app/src/home_screen/service/news_service.dart';
@@ -7,6 +8,8 @@ class NewsController extends GetxController {
   var isLoading = false.obs;
   NewsModel? newsModel;
   late final NewsService newService;
+  List<String> tabs = ["All News", "Politics", "Tech", "Science", "Cricket", "Economics"];
+
 
   @override
   Future<void> onInit() async {
