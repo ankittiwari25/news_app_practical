@@ -3,6 +3,7 @@ import 'package:news_app/network/api_url.dart';
 
 import '../network/network.dart';
 import '../src/home_screen/service/news_service.dart';
+import '../src/setting_screen/setting_controller.dart';
 
 final getIt = GetIt.instance;
 

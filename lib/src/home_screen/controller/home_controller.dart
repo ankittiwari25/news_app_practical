@@ -15,7 +15,6 @@ class NewsController extends GetxController {
     getNewsData();
   }
 
-
   /// fetching news data
   void getNewsData() async {
     isLoading(true);
