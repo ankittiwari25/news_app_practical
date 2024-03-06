@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:news_app/src/home_screen/controller/home_controller.dart';
+import 'package:news_app/src/home_screen/model/news_model.dart';
 import 'package:news_app/src/setting_screen/setting_controller.dart';
+import 'package:news_app/utils/app_color.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -17,8 +20,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     NewsController newsController = Get.put(NewsController());
-    final themeController = Get.put(SettingController());
+    SettingController themeController = Get.put(SettingController());
+
     return Scaffold(
+      // backgroundColor: AppColor.light_gray,
       appBar: AppBar(
         title: const Text('OXU.az'),
         actions: [
@@ -62,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             );
           }),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -82,15 +88,177 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ],
             ),
           ),
-          Obx(() => newsController.isLoading.value
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Center(
-                  child: Text('${newsController.newsModel!.articles!.length}'),
-                )),
+          const SizedBox(height: 4),
+          SizedBox(
+            height: 200,
+            child: PageView.builder(
+              physics: const ClampingScrollPhysics(),
+              itemCount: newsController.images.length,
+              onPageChanged: (int pageIndex) {
+                newsController.updateIndex(pageIndex);
+              },
+              itemBuilder: (context, pagePosition) {
+                return Obx(() {
+                  return Container(
+                    height: 180,
+                    // margin: EdgeInsets.all(12),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        height: (newsController.selectedIndex.value != pagePosition) ? 150 : 180,
+                        fit: BoxFit.fitHeight,
+                        newsController.images[pagePosition],
+                      ),
+                    ),
+                  );
+                });
+              },
+              controller: newsController.appSwiperController,
+            ),
+          ),
+          Container(
+            height: 40,
+            child: Obx(
+              () => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: buildPageIndicator(newsController.selectedIndex.value, newsController.images),
+              ),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(left: 24.0),
+            child: Text(
+              'Latest news',
+              style: TextStyle(fontSize: 22),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Obx(() => newsController.isLoading.value
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : ListView.separated(
+                    itemBuilder: (BuildContext context, int index) {
+                      Articles artical = newsController.newsModel!.articles![index];
+                      print("DATE -- ${DateTime.parse(artical.publishedAt!)}");
+                      return Container(
+                        // color: AppColor.gray_1,
+                        height: 130,
+                        margin: const EdgeInsets.only(left: 24),
+                        child: Stack(
+                          children: [
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: Container(
+                                height: 110,
+                                decoration: const BoxDecoration(
+                                  color: AppColor.light_gray,
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
+                                ),
+                                margin: const EdgeInsets.only(left: 20),
+                                padding: const EdgeInsets.only(left: 100, right: 10, top: 10, bottom: 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      artical.title ?? '',
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    SizedBox(height: 20),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          Jiffy.parseFromDateTime(DateTime.parse(artical.publishedAt!))
+                                              .fromNow(),
+                                          // a few seconds ago,
+                                          style: const TextStyle(fontSize: 10),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Spacer(),
+                                        Icon(
+                                          Icons.bookmark,
+                                          color: AppColor.dark_orange,
+                                          size: 14,
+                                        ),
+                                        const SizedBox(width: 20)
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  artical.urlToImage ?? '',
+                                  height: 110,
+                                  width: 110,
+                                  fit: BoxFit.fitHeight,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    itemCount: newsController.newsModel?.articles?.length ?? 0,
+                    separatorBuilder: (BuildContext context, int index) {
+                      return SizedBox(height: 10);
+                    },
+                  )),
+          ),
         ],
       ),
     );
+  }
+
+  List<Widget> buildPageIndicator(int currentPage, List<String> images) {
+    List<Widget> list = [];
+    for (int i = 0; i < images.length; i++) {
+      list.add(i == currentPage
+          ? indicator(true, i, currentPage, images.length - 1)
+          : indicator(false, i, currentPage, images.length - 1));
+    }
+    return list;
+  }
+
+  Widget indicator(bool isActive, int i, int currentPage, int totalPages) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      height: getIndicatorSize(isActive, i, currentPage, totalPages),
+      width: getIndicatorSize(isActive, i, currentPage, totalPages),
+      decoration: BoxDecoration(
+        color: getColor(isActive, i),
+        border: Border.all(color: AppColor.dark_orange),
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+
+  Color getColor(bool isActive, int i) {
+    if (isActive) {
+      return /*Get.theme == ThemeMode.dark ? Colors.white :*/ Colors.transparent;
+    } else {
+      return AppColor.dark_orange;
+    }
+  }
+
+  double getIndicatorSize(bool isActive, int i, int currentPage, int totalPages) {
+    if (isActive) {
+      return 8.0;
+    } else if ((i == 0 || i == totalPages) && !isActive) {
+      return 6.0;
+    }
+    return 6.0;
   }
 }

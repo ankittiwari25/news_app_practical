@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'News App',
       theme: ThemeData.light().copyWith(
+        // scaffoldBackgroundColor: AppColor.white,
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           elevation: 2,
           selectedItemColor: AppColor.dark_orange,
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       darkTheme: ThemeData.dark().copyWith(
+        // scaffoldBackgroundColor: AppColor.gray_1,
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           elevation: 2,
           selectedItemColor: AppColor.dark_orange,
