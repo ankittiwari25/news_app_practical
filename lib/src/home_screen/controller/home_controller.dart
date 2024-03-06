@@ -47,4 +47,13 @@ class NewsController extends GetxController {
   void updateIndex(int newIndex) {
     selectedIndex(newIndex);
   }
+
+  void setAsFavourite(int newIndex) {
+    newsModel!.articles![newIndex].isFavourite.value =
+        !(newsModel!.articles![newIndex].isFavourite.value ?? false);
+  }
+
+  void setAsFavouriteByItem(Articles item) {
+    item.isFavourite.value = !item.isFavourite.value;
+  }
 }

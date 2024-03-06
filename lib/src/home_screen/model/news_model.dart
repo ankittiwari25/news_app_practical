@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 class NewsModel {
   String? status;
   int? totalResults;
@@ -36,20 +38,21 @@ class Articles {
   String? urlToImage;
   String? publishedAt;
   String? content;
+  var isFavourite = false.obs;
 
   Articles(
       {this.source,
-        this.author,
-        this.title,
-        this.description,
-        this.url,
-        this.urlToImage,
-        this.publishedAt,
-        this.content});
+      this.author,
+      this.title,
+      this.description,
+      this.url,
+      this.urlToImage,
+      this.publishedAt,
+      this.content,
+      required this.isFavourite});
 
   Articles.fromJson(Map<String, dynamic> json) {
-    source =
-    json['source'] != null ? Source.fromJson(json['source']) : null;
+    source = json['source'] != null ? Source.fromJson(json['source']) : null;
     author = json['author'];
     title = json['title'];
     description = json['description'];

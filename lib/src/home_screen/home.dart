@@ -6,6 +6,8 @@ import 'package:news_app/src/home_screen/model/news_model.dart';
 import 'package:news_app/src/setting_screen/setting_controller.dart';
 import 'package:news_app/utils/app_color.dart';
 
+import '../news_detail_screen/news_detail_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
@@ -101,7 +103,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 return Obx(() {
                   return Container(
                     height: 180,
-                    // margin: EdgeInsets.all(12),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
                     child: ClipRRect(
@@ -144,69 +145,83 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     itemBuilder: (BuildContext context, int index) {
                       Articles artical = newsController.newsModel!.articles![index];
                       print("DATE -- ${DateTime.parse(artical.publishedAt!)}");
-                      return Container(
-                        // color: AppColor.gray_1,
-                        height: 130,
-                        margin: const EdgeInsets.only(left: 24),
-                        child: Stack(
-                          children: [
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: Container(
-                                height: 110,
-                                decoration: const BoxDecoration(
-                                  color: AppColor.light_gray,
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
-                                ),
-                                margin: const EdgeInsets.only(left: 20),
-                                padding: const EdgeInsets.only(left: 100, right: 10, top: 10, bottom: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      artical.title ?? '',
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    SizedBox(height: 20),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          Jiffy.parseFromDateTime(DateTime.parse(artical.publishedAt!))
-                                              .fromNow(),
-                                          // a few seconds ago,
-                                          style: const TextStyle(fontSize: 10),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        Spacer(),
-                                        Icon(
-                                          Icons.bookmark,
-                                          color: AppColor.dark_orange,
-                                          size: 14,
-                                        ),
-                                        const SizedBox(width: 20)
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.network(
-                                  artical.urlToImage ?? '',
+                      return GestureDetector(
+                        onTap: () {
+                          Get.to(NewsDetailScreen(artical: artical));
+                        },
+                        child: Container(
+                          // color: AppColor.gray_1,
+                          height: 130,
+                          margin: const EdgeInsets.only(left: 24),
+                          child: Stack(
+                            children: [
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: Container(
                                   height: 110,
-                                  width: 110,
-                                  fit: BoxFit.fitHeight,
+                                  decoration: const BoxDecoration(
+                                    color: AppColor.light_gray,
+                                    borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
+                                  ),
+                                  margin: const EdgeInsets.only(left: 20),
+                                  padding: const EdgeInsets.only(left: 100, right: 10, top: 10, bottom: 10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        artical.title ?? '',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 20),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            Jiffy.parseFromDateTime(DateTime.parse(artical.publishedAt!))
+                                                .fromNow(),
+                                            // a few seconds ago,
+                                            style: const TextStyle(fontSize: 10),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const Spacer(),
+                                          GestureDetector(
+                                            onTap: () {
+                                              newsController.setAsFavourite(index);
+                                            },
+                                            child: Obx(() {
+                                              return Icon(
+                                                artical.isFavourite.value
+                                                    ? Icons.bookmark
+                                                    : Icons.bookmark_border,
+                                                color: AppColor.dark_orange,
+                                                size: 20,
+                                              );
+                                            }),
+                                          ),
+                                          const SizedBox(width: 20)
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.network(
+                                    artical.urlToImage ?? '',
+                                    height: 110,
+                                    width: 110,
+                                    fit: BoxFit.fitHeight,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

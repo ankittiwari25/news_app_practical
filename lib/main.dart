@@ -60,6 +60,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
+      debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
       home: HomeScreen(),
     );
